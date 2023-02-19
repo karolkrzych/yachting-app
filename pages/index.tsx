@@ -3,12 +3,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Offer } from 'types/offers';
 import getRecentOffers from 'services/offers/getRecent';
+import useSWR from 'swr';
+import { jsonFetcher } from 'utils';
 
 interface Props {
     offers: Offer[];
 }
 
 export default function Home({ offers }: Props) {
+    const { data } = useSWR<Offer[]>('/api/offers', jsonFetcher, {
+        fallbackData: offers, 
+    });
+
     return (
         <BaseLayout>
             <section className="text-gray-600 body-font">
@@ -27,7 +33,7 @@ export default function Home({ offers }: Props) {
                         </p>
                     </div>
                     <div className="flex flex-wrap -m-4">
-                        {offers.map((offer) => (
+                        {data?.map((offer) => (
                             <div
                                 key={offer.id}
                                 className="xl:w-1/4 md:w-1/2 p-4 cursor-pointer">
