@@ -1,13 +1,18 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import BaseLayout from 'components/BaseLayout';
+import { useRouter } from 'next/router';
 
 export default function OfferNew() {
     const offerForm = useRef<HTMLFormElement>(null);
+    const [formProcessing, setFormProcessing] = useState(false);
+    const router = useRouter();
 
     const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault();
+        setFormProcessing(true);
 
         const currentForm = offerForm.current;
+        if (formProcessing) return;
         if (currentForm === null) return;
 
         const form = new FormData(currentForm);
@@ -19,7 +24,7 @@ export default function OfferNew() {
             description: form.get('description'),
             location: form.get('location'),
         };
-		
+
         await fetch('/api/offers', {
             method: 'POST',
             body: JSON.stringify(payload),
@@ -27,6 +32,8 @@ export default function OfferNew() {
                 'Content-Type': 'application/json',
             },
         });
+
+        router.push('/offers/thanks');
     };
 
     return (
@@ -144,8 +151,12 @@ export default function OfferNew() {
                                 </div>
                             </div>
                             <div className="p-2 w-full">
-                                <button className="disabled:opacity-50 flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
-                                    Submit offer
+                                <button
+                                    disabled={formProcessing}
+                                    className="disabled:opacity-50 flex mx-auto text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                                    {formProcessing
+                                        ? 'Please wait...'
+                                        : 'Submit offer'}
                                 </button>
                             </div>
                         </form>
