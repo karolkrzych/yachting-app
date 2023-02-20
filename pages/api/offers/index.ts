@@ -8,7 +8,12 @@ interface PostOfferReposne {
     offer: Records<FieldSet>;
 }
 
-type ResponseType = FieldSet[] | PostOfferReposne;
+interface PostErrorResponse {
+    status: string;
+    error: unknown;
+}
+
+type ResponseType = FieldSet[] | PostOfferReposne | PostErrorResponse;
 
 export default async (
     req: NextApiRequest,
@@ -23,9 +28,14 @@ export default async (
         }
 
         case 'POST': {
-            const payload = req.body;
-            const offer = await createOffer(payload);
-            res.status(200).json({ status: 'created', offer });
+            try {
+                const payload = req.body;
+                console.log('payload backend', payload);
+                const offer = await createOffer(payload);
+                res.status(200).json({ status: 'created', offer });
+            } catch (err) {
+                res.status(422).json({ status: 'not_created', error: err });
+            }
 
             break;
         }

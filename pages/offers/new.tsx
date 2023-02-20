@@ -4,11 +4,13 @@ import { useRouter } from 'next/router';
 
 export default function OfferNew() {
     const offerForm = useRef<HTMLFormElement>(null);
+    const [error, setError] = useState(null);
     const [formProcessing, setFormProcessing] = useState(false);
     const router = useRouter();
 
     const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault();
+        setError(null);
         setFormProcessing(true);
 
         const currentForm = offerForm.current;
@@ -25,7 +27,7 @@ export default function OfferNew() {
             location: form.get('location'),
         };
 
-        await fetch('/api/offers', {
+        const response = await fetch('/api/offers', {
             method: 'POST',
             body: JSON.stringify(payload),
             headers: {
@@ -33,7 +35,13 @@ export default function OfferNew() {
             },
         });
 
-        router.push('/offers/thanks');
+        if (response.ok) {
+            router.push('/offers/thanks');
+        } else {
+            const payload = await response.json();
+            setFormProcessing(false);
+            setError(payload.error.details[0]?.message);
+        }
     };
 
     return (
@@ -158,6 +166,13 @@ export default function OfferNew() {
                                         ? 'Please wait...'
                                         : 'Submit offer'}
                                 </button>
+                                {error && (
+                                    <div className="flex justify-center w-full my-5">
+                                        <span className="bg-red-600 w-full rounded text-white p-2 text-center">
+                                            Offer not added: {error}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </form>
                     </div>

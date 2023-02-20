@@ -1,0 +1,14 @@
+POST http://localhost:3000/api/offers
+content-type: application/json
+
+{
+    "title": "Super fast boat",
+    "mobile": "1234123",
+    "category": "sale",
+    "description": "New boat",
+    "location": "Gdziekolwiek",
+    "price": 123
+}
+
+###
+
