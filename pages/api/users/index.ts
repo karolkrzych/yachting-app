@@ -9,7 +9,7 @@ interface Data {
 
 interface PostUserErrorResponse {
     status: string;
-    error: unknown;
+    errorMsg: string;
 }
 
 type ResponseType = Data | PostUserErrorResponse;
@@ -26,7 +26,11 @@ export default async (
 
                 res.status(200).json({ status: 'created', user });
             } catch (err) {
-                res.status(422).json({ status: 'not_created', error: err });
+                const error = err as unknown as Error;
+                res.status(422).json({
+                    status: 'not_created',
+                    errorMsg: error.message,
+                });
             }
             break;
         }
